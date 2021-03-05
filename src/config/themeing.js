@@ -13,4 +13,14 @@ const theme = createMuiTheme({
   },
 });
 
-export { theme };
+const mainGridConfigForSideSpace = {
+  xs: 0,
+  sm: 2,
+};
+
+const mainGridConfigForContent = {
+  xs: 12,
+  sm: 8,
+};
+
+export { theme, mainGridConfigForSideSpace, mainGridConfigForContent };

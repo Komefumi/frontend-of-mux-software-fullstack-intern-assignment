@@ -1,18 +1,7 @@
-import { useState, useEffect } from 'react';
-import {
-  useRouteMatch,
-  useLocation,
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Redirect,
-  Link,
-} from 'react-router-dom';
+import { useState } from 'react';
+import { Switch, Route, Redirect } from 'react-router-dom';
 import {
   Grid,
-  Paper,
-  Tabs,
-  Tab,
   Typography,
   TextField,
   FormControl,
@@ -24,6 +13,8 @@ import {
 import MuiPhoneInput from 'material-ui-phone-number';
 import { makeStyles } from '@material-ui/core/styles';
 
+import PaperLinkTabs from '../components/PaperLinkTabs';
+
 import {
   // ROUTE_ROOT,
   ROUTE_MAJOR_ADD_INFO,
@@ -34,52 +25,6 @@ import {
 
 const ROUTE_ADD_CUSTOMER = `${ROUTE_MAJOR_ADD_INFO}/${ROUTE_MINOR_CUSTOMER}/`;
 const ROUTE_ADD_FIELD = `${ROUTE_MAJOR_ADD_INFO}/${ROUTE_MINOR_FIELD}/`;
-
-const AddInfoTabs = () => {
-  const [value, setValue] = useState(0);
-  const { pathname } = useLocation();
-
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
-
-  useEffect(() => {
-    const val = pathname.slice(1).split('/')[1];
-    switch (val) {
-      case ROUTE_MINOR_CUSTOMER:
-        setValue(0);
-        break;
-      case ROUTE_MINOR_FIELD:
-        setValue(1);
-        break;
-      default:
-        setValue(0);
-    }
-  }, [pathname]);
-
-  return (
-    <Paper square>
-      <Tabs
-        value={value}
-        indicatorColor='primary'
-        textColor='primary'
-        onChange={handleChange}
-        aria-label='disabled tabs example'
-      >
-        <Tab
-          label='Add Customer'
-          component={Link}
-          to={`${ROUTE_MAJOR_ADD_INFO}/${ROUTE_MINOR_CUSTOMER}`}
-        />
-        <Tab
-          label='Add Field'
-          component={Link}
-          to={`${ROUTE_MAJOR_ADD_INFO}/${ROUTE_MINOR_FIELD}`}
-        />
-      </Tabs>
-    </Paper>
-  );
-};
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -125,7 +70,9 @@ const DesiredSelect = ({ inputLabel, selectionData, control, onSelect }) => {
         }}
       >
         {selectionData.map(({ label, value }) => (
-          <MenuItem value={value}>{label}</MenuItem>
+          <MenuItem key={label + '-' + value} value={value}>
+            {label}
+          </MenuItem>
         ))}
       </Select>
     </FormControl>
@@ -184,7 +131,6 @@ const AddField = () => {
   // const [store, setStoreOnChange] = useStore();
   const [store, setStore] = useState('');
   const [chosenType, setChosenType] = useState('');
-  console.log('Add Customer');
 
   return (
     <form className={classes.root} noValidate autoComplete='off'>
@@ -217,12 +163,20 @@ const AddField = () => {
   );
 };
 
+const MINOR_ROUTES_WITH_LABELS = [
+  { label: 'Add Customer', route: ROUTE_MINOR_CUSTOMER },
+  { label: 'Add Field', route: ROUTE_MINOR_FIELD },
+];
+
 const AddInfo = () => {
-  let { path } = useRouteMatch();
   return (
     <Grid container direction='column'>
       <Grid item>
-        <AddInfoTabs />
+        {/* <AddInfoTabs /> */}
+        <PaperLinkTabs
+          majorRoute={ROUTE_MAJOR_ADD_INFO}
+          labelWithMinorRouteList={MINOR_ROUTES_WITH_LABELS}
+        />
       </Grid>
       <Grid item>
         <Switch>

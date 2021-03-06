@@ -9,7 +9,13 @@ import {
   Redirect,
   Link,
 } from 'react-router-dom';
-import TextField from '@material-ui/core/TextField';
+import {
+  TextField,
+  FormControl,
+  MenuItem,
+  Select,
+  InputLabel,
+} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 import {
@@ -22,20 +28,6 @@ import {
 
 const ROUTE_ADD_CUSTOMER = `${ROUTE_MAJOR_ADD_INFO}/${ROUTE_MINOR_CUSTOMER}/`;
 const ROUTE_ADD_FIELD = `${ROUTE_MAJOR_ADD_INFO}/${ROUTE_MINOR_FIELD}/`;
-
-const useStateFromRoute = () => {
-  const { pathname } = useLocation();
-  console.log({ pathname });
-  const location = pathname.slice(1).split('/')[1];
-  let val = null;
-
-  console.log({ location, ROUTE_MINOR_CUSTOMER });
-
-  if (location === ROUTE_MINOR_CUSTOMER) val = 0;
-  else val = 1;
-
-  return useState(val);
-};
 
 const AddInfoTabs = () => {
   const [value, setValue] = useState(0);
@@ -90,11 +82,41 @@ const useStyles = makeStyles((theme) => ({
       width: 200,
     },
   },
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
+  },
+  selectEmpty: {
+    marginTop: theme.spacing(2),
+  },
 }));
+
+const STORES = ['electronics', 'toys'];
+
+const StoreSelect = ({ control, onStoreSelect }) => {
+  const classes = useStyles();
+  return (
+    <FormControl className={classes.formControl}>
+      <InputLabel id='demo-simple-select-label'>Store</InputLabel>
+      <Select
+        labelId='demo-simple-select-label'
+        id='demo-simple-select'
+        value={control}
+        onChange={({ target: { value } }) => {
+          // setStore(value);
+          onStoreSelect(value);
+        }}
+      >
+        <MenuItem value={STORES[0]}>Electronics Store</MenuItem>
+        <MenuItem value={STORES[1]}>Toy Store</MenuItem>
+      </Select>
+    </FormControl>
+  );
+};
 
 const AddCustomer = () => {
   const classes = useStyles();
-  console.log('Add Customer');
+  const [store, setStore] = useState('');
 
   return (
     <form className={classes.root} noValidate autoComplete='off'>
@@ -102,12 +124,17 @@ const AddCustomer = () => {
         <TextField id='first-name' label='First Name' />
         <TextField id='last-name' label='Last Name' />
       </div>
+      <div>
+        <StoreSelect control={store} onStoreSelect={setStore} />
+      </div>
     </form>
   );
 };
 
 const AddField = () => {
   const classes = useStyles();
+  // const [store, setStoreOnChange] = useStore();
+  const [store, setStore] = useState('');
   console.log('Add Customer');
 
   return (
@@ -115,6 +142,7 @@ const AddField = () => {
       <div>
         <TextField id='field-name' label='Field Name' />
         <TextField id='field-type' label='Field Type' />
+        <StoreSelect control={store} onStoreSelect={setStore} />
       </div>
     </form>
   );
@@ -131,8 +159,8 @@ const AddInfo = () => {
         <Switch>
           <Redirect
             exact
-            from={`${ROUTE_MAJOR_ADD_INFO}/`}
-            to={`${ROUTE_MINOR_CUSTOMER}`}
+            from={`${ROUTE_MAJOR_ADD_INFO}`}
+            to={`${ROUTE_ADD_CUSTOMER}`}
           />
           <Route
             component={AddCustomer}

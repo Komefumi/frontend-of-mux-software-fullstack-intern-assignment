@@ -14,7 +14,7 @@ const theme = createMuiTheme({
 });
 
 const mainGridConfigForSideSpace = {
-  xs: 0,
+  xs: false,
   sm: 2,
 };
 

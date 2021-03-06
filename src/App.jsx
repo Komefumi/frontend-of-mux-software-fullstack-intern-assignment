@@ -1,10 +1,20 @@
 import React, { Fragment as ReactFragment } from 'react';
 import { Grid } from '@material-ui/core';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect,
+} from 'react-router-dom';
 
 import { ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 
 import Header from './components/Header';
+import MainTabs from './components/MainTabs';
+
+import AddInfoPage from './pages/AddInfo';
+import ListInfoPage from './pages/ListInfo';
 
 import {
   theme,
@@ -12,25 +22,46 @@ import {
   mainGridConfigForContent,
 } from './config/themeing';
 
+import {
+  ROUTE_ROOT,
+  ROUTE_MAJOR_ADD_INFO,
+  ROUTE_MAJOR_LIST_INFO,
+} from './constants';
+
 function App() {
   return (
     <ReactFragment>
       <CssBaseline />
       <ThemeProvider theme={theme}>
         <Grid container direction='column'>
-          <Grid item container>
+          <Grid item>
+            <Header />
+          </Grid>
+          {/* <Header /> */}
+          {/* <Grid item container>
             <Grid {...mainGridConfigForSideSpace} />
             <Grid {...mainGridConfigForContent}>
               <Header />
             </Grid>
             <Grid {...mainGridConfigForSideSpace} />
-          </Grid>
+          </Grid> */}
           <Grid item container>
-            <Grid {...mainGridConfigForSideSpace} />
-            <Grid {...mainGridConfigForContent}>
-              This is where we will have the content
+            <Grid {...mainGridConfigForSideSpace} item />
+            <Grid {...mainGridConfigForContent} item>
+              {/* This is where we will have the content */}
+              <Router>
+                <MainTabs />
+                <Switch>
+                  <Route component={AddInfoPage} path={ROUTE_MAJOR_ADD_INFO} />
+                  <Route
+                    component={ListInfoPage}
+                    path={ROUTE_MAJOR_LIST_INFO}
+                  />
+                  <Redirect from={ROUTE_ROOT} to={ROUTE_MAJOR_ADD_INFO} exact />
+                </Switch>
+              </Router>
             </Grid>
-            <Grid {...mainGridConfigForSideSpace} />
+            <Grid {...mainGridConfigForSideSpace} item />
           </Grid>
         </Grid>
       </ThemeProvider>

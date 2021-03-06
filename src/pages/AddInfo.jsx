@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Grid, Paper, Tabs, Tab } from '@material-ui/core';
 import {
   useRouteMatch,
   useLocation,
@@ -10,6 +9,11 @@ import {
   Link,
 } from 'react-router-dom';
 import {
+  Grid,
+  Paper,
+  Tabs,
+  Tab,
+  Typography,
   TextField,
   FormControl,
   MenuItem,
@@ -17,6 +21,7 @@ import {
   InputLabel,
   Button,
 } from '@material-ui/core';
+import MuiPhoneInput from 'material-ui-phone-number';
 import { makeStyles } from '@material-ui/core/styles';
 
 import {
@@ -138,7 +143,23 @@ const AddCustomer = () => {
         <TextField id='last-name' label='Last Name' />
       </div>
       <div>
-        {/* <StoreSelect control={store} onStoreSelect={setStore} /> */}
+        <TextField
+          style={{ width: '90%' }}
+          id='address'
+          label='Address'
+          multiline
+          rowsMax={5}
+          fullWidth={true}
+        />
+      </div>
+      <div>
+        <MuiPhoneInput
+          id='phone-number'
+          defaultCountry='in'
+          label='Phone Number'
+        />
+      </div>
+      <div>
         <DesiredSelect
           inputLabel='Store'
           selectionData={STORES}
@@ -146,6 +167,9 @@ const AddCustomer = () => {
           onSelect={setStore}
         />
       </div>
+      <Typography color='primary' variant='h5'>
+        Additional Fields
+      </Typography>
       <div>
         <Button variant='contained' color='primary'>
           Primary
@@ -181,6 +205,9 @@ const AddField = () => {
           onSelect={setStore}
         />
       </div>
+      <Typography color='primary' variant='h5'>
+        Existing Additional Fields
+      </Typography>
       <div>
         <Button variant='contained' color='primary'>
           Primary

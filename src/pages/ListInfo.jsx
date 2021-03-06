@@ -1,22 +1,30 @@
+import { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import Accordion from '@material-ui/core/Accordion';
-import AccordionSummary from '@material-ui/core/AccordionSummary';
-import AccordionDetails from '@material-ui/core/AccordionDetails';
-import Typography from '@material-ui/core/Typography';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import {
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Typography,
+  Grid,
+  Card,
+} from '@material-ui/core';
+import { ExpandMore as ExpandMoreIcon } from '@material-ui/icons';
+import { Switch, Route, Redirect } from 'react-router-dom';
 
 import PaperLinkTabs from '../components/PaperLinkTabs';
+import DesiredSelect from '../components/DesiredSelect';
 
 import {
   // ROUTE_ROOT,
   ROUTE_MAJOR_LIST_INFO,
   ROUTE_MINOR_CUSTOMER,
   ROUTE_MINOR_FIELD,
+  STORES,
   // ROUTE_MINOR_ADD_FIELD,
 } from '../constants';
 
-// const ROUTE_LIST_CUSTOMERS = `${ROUTE_MAJOR_LIST_INFO}/${ROUTE_MINOR_CUSTOMER}/`;
-// const ROUTE_LIST_FIELDS = `${ROUTE_MAJOR_LIST_INFO}/${ROUTE_MINOR_FIELD}/`;
+const ROUTE_LIST_CUSTOMERS = `${ROUTE_MAJOR_LIST_INFO}/${ROUTE_MINOR_CUSTOMER}/`;
+const ROUTE_LIST_FIELDS = `${ROUTE_MAJOR_LIST_INFO}/${ROUTE_MINOR_FIELD}/`;
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -25,6 +33,10 @@ const useStyles = makeStyles((theme) => ({
   heading: {
     fontSize: theme.typography.pxToRem(15),
     fontWeight: theme.typography.fontWeightRegular,
+  },
+  selectContainingPanel: {
+    display: 'flex',
+    justifyContent: 'flex-end',
   },
 }));
 
@@ -83,14 +95,50 @@ const labelWithRouteList = [
   { label: 'List Fields', route: ROUTE_MINOR_FIELD },
 ];
 
-const ListInfo = () => (
-  <div>
-    <PaperLinkTabs
-      majorRoute={ROUTE_MAJOR_LIST_INFO}
-      labelWithMinorRouteList={labelWithRouteList}
-    />
-    <SimpleAccordion />
-  </div>
-);
+const ListInfo = () => {
+  const [currentStore, setCurrentStore] = useState('');
+  const classes = useStyles();
+
+  return (
+    <Grid container direction='column'>
+      <Grid item>
+        {/* <AddInfoTabs /> */}
+        <PaperLinkTabs
+          majorRoute={ROUTE_MAJOR_LIST_INFO}
+          labelWithMinorRouteList={labelWithRouteList}
+        />
+      </Grid>
+      <Grid item>
+        <Card className={classes.selectContainingPanel}>
+          <DesiredSelect
+            inputLabel='Store'
+            selectionData={STORES}
+            control={currentStore}
+            onSelect={setCurrentStore}
+          />
+        </Card>
+      </Grid>
+      <Grid item>
+        <Switch>
+          <Redirect
+            exact
+            from={`${ROUTE_MAJOR_LIST_INFO}`}
+            to={`${ROUTE_LIST_CUSTOMERS}`}
+          />
+          <Route
+            path={ROUTE_LIST_CUSTOMERS}
+            component={() => <SimpleAccordion currentStore={currentStore} />}
+          />
+          <Route
+            path={ROUTE_LIST_FIELDS}
+            component={() => (
+              <div currentStore={currentStore}>Fields are us</div>
+            )}
+          />
+        </Switch>
+      </Grid>
+    </Grid>
+  );
+};
 
 export default ListInfo;

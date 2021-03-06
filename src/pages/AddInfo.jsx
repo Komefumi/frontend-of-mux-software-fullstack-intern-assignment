@@ -21,6 +21,8 @@ import {
   ROUTE_MAJOR_ADD_INFO,
   ROUTE_MINOR_CUSTOMER,
   ROUTE_MINOR_FIELD,
+  STORES,
+  TYPES,
   // ROUTE_MINOR_ADD_FIELD,
 } from '../constants';
 
@@ -42,19 +44,6 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(2),
   },
 }));
-
-// const STORES = ['electronics', 'toys'];
-const STORES = [
-  { label: 'Electronics Store', value: 'electronics' },
-  { label: 'Toy Store', value: 'toys' },
-];
-
-const TYPES = [
-  { label: 'String', value: 'string' },
-  { label: 'Number', value: 'number' },
-  { label: 'Email', value: 'email' },
-  { label: 'Date', value: 'date' },
-];
 
 const AddCustomer = () => {
   const classes = useStyles();

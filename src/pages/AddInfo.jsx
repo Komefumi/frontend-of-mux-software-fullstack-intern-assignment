@@ -14,6 +14,7 @@ import MuiPhoneInput from 'material-ui-phone-number';
 import { makeStyles } from '@material-ui/core/styles';
 
 import PaperLinkTabs from '../components/PaperLinkTabs';
+import DesiredSelect from '../components/DesiredSelect';
 
 import {
   // ROUTE_ROOT,
@@ -54,30 +55,6 @@ const TYPES = [
   { label: 'Email', value: 'email' },
   { label: 'Date', value: 'date' },
 ];
-
-const DesiredSelect = ({ inputLabel, selectionData, control, onSelect }) => {
-  const classes = useStyles();
-  return (
-    <FormControl className={classes.formControl}>
-      <InputLabel id='demo-simple-select-label'>{inputLabel}</InputLabel>
-      <Select
-        labelId='demo-simple-select-label'
-        id='demo-simple-select'
-        value={control}
-        onChange={({ target: { value } }) => {
-          // setStore(value);
-          onSelect(value);
-        }}
-      >
-        {selectionData.map(({ label, value }) => (
-          <MenuItem key={label + '-' + value} value={value}>
-            {label}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-  );
-};
 
 const AddCustomer = () => {
   const classes = useStyles();

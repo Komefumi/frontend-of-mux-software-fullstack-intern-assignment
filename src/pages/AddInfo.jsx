@@ -15,6 +15,7 @@ import {
   MenuItem,
   Select,
   InputLabel,
+  Button,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -91,24 +92,36 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const STORES = ['electronics', 'toys'];
+// const STORES = ['electronics', 'toys'];
+const STORES = [
+  { label: 'Electronics Store', value: 'electronics' },
+  { label: 'Toy Store', value: 'toys' },
+];
 
-const StoreSelect = ({ control, onStoreSelect }) => {
+const TYPES = [
+  { label: 'String', value: 'string' },
+  { label: 'Number', value: 'number' },
+  { label: 'Email', value: 'email' },
+  { label: 'Date', value: 'date' },
+];
+
+const DesiredSelect = ({ inputLabel, selectionData, control, onSelect }) => {
   const classes = useStyles();
   return (
     <FormControl className={classes.formControl}>
-      <InputLabel id='demo-simple-select-label'>Store</InputLabel>
+      <InputLabel id='demo-simple-select-label'>{inputLabel}</InputLabel>
       <Select
         labelId='demo-simple-select-label'
         id='demo-simple-select'
         value={control}
         onChange={({ target: { value } }) => {
           // setStore(value);
-          onStoreSelect(value);
+          onSelect(value);
         }}
       >
-        <MenuItem value={STORES[0]}>Electronics Store</MenuItem>
-        <MenuItem value={STORES[1]}>Toy Store</MenuItem>
+        {selectionData.map(({ label, value }) => (
+          <MenuItem value={value}>{label}</MenuItem>
+        ))}
       </Select>
     </FormControl>
   );
@@ -125,7 +138,18 @@ const AddCustomer = () => {
         <TextField id='last-name' label='Last Name' />
       </div>
       <div>
-        <StoreSelect control={store} onStoreSelect={setStore} />
+        {/* <StoreSelect control={store} onStoreSelect={setStore} /> */}
+        <DesiredSelect
+          inputLabel='Store'
+          selectionData={STORES}
+          control={store}
+          onSelect={setStore}
+        />
+      </div>
+      <div>
+        <Button variant='contained' color='primary'>
+          Primary
+        </Button>
       </div>
     </form>
   );
@@ -135,14 +159,32 @@ const AddField = () => {
   const classes = useStyles();
   // const [store, setStoreOnChange] = useStore();
   const [store, setStore] = useState('');
+  const [chosenType, setChosenType] = useState('');
   console.log('Add Customer');
 
   return (
     <form className={classes.root} noValidate autoComplete='off'>
       <div>
         <TextField id='field-name' label='Field Name' />
-        <TextField id='field-type' label='Field Type' />
-        <StoreSelect control={store} onStoreSelect={setStore} />
+        {/* <TextField id='field-type' label='Field Type' /> */}
+        <DesiredSelect
+          inputLabel='Type'
+          selectionData={TYPES}
+          control={chosenType}
+          onSelect={setChosenType}
+        />
+        {/* <StoreSelect control={store} onStoreSelect={setStore} /> */}
+        <DesiredSelect
+          inputLabel='Store'
+          selectionData={STORES}
+          control={store}
+          onSelect={setStore}
+        />
+      </div>
+      <div>
+        <Button variant='contained' color='primary'>
+          Primary
+        </Button>
       </div>
     </form>
   );

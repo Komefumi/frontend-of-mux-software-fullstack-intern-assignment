@@ -5,10 +5,24 @@ const ROUTE_MAJOR_LIST_INFO = '/list';
 const ROUTE_MINOR_CUSTOMER = 'customer';
 const ROUTE_MINOR_FIELD = 'field';
 
+const STORES = [
+  { label: 'Electronics Store', value: 'electronics' },
+  { label: 'Toy Store', value: 'toys' },
+];
+
+const TYPES = [
+  { label: 'String', value: 'string' },
+  { label: 'Number', value: 'number' },
+  { label: 'Email', value: 'email' },
+  { label: 'Date', value: 'date' },
+];
+
 export {
   ROUTE_ROOT,
   ROUTE_MAJOR_ADD_INFO,
   ROUTE_MAJOR_LIST_INFO,
   ROUTE_MINOR_CUSTOMER,
   ROUTE_MINOR_FIELD,
+  STORES,
+  TYPES,
 };

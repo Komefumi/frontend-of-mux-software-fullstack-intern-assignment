@@ -23,6 +23,13 @@ const createCustomer = (storeName, customerData) => {
     .then((dataFormal) => dataFormal.data);
 };
 
+const getCustomerCount = (storeName) => {
+  return axiosInstance
+    .get('/customers/count', { params: { store: storeName } })
+    .then(responseToData)
+    .then((dataFormal) => dataFormal.data);
+};
+
 const listFields = (storeName) => {
   return axiosInstance
     .get('/fields', { params: { store: storeName } })
@@ -40,4 +47,10 @@ const createField = (storeName, fieldName, fieldType) => {
     .then((dataFormal) => dataFormal.data);
 };
 
-export { getCustomers, createCustomer, listFields, createField };
+export {
+  getCustomers,
+  createCustomer,
+  listFields,
+  createField,
+  getCustomerCount,
+};

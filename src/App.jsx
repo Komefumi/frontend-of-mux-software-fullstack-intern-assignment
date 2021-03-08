@@ -1,12 +1,12 @@
 import React, { Fragment as ReactFragment } from 'react';
-import { Grid } from '@material-ui/core';
+import { Grid, MuiAlert, Snackbar } from '@material-ui/core';
 import {
   BrowserRouter as Router,
   Switch,
   Route,
   Redirect,
 } from 'react-router-dom';
-import { Provider } from 'react-redux';
+import { Provider, useSelector, useDispatch } from 'react-redux';
 
 import { ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -25,9 +25,21 @@ import {
   ROUTE_ROOT,
   ROUTE_MAJOR_ADD_INFO,
   ROUTE_MAJOR_LIST_INFO,
+  UNSET_FLASH_MESSAGE,
 } from './constants';
 
+const Alert = (props) => {
+  return <MuiAlert elevation={6} variant='filled' {...props} />;
+};
+
 function App() {
+  const { flashMessage, severity } = useSelector((state) => state.notification);
+  const dispatch = useDispatch();
+
+  const snackClose = () => {
+    dispatch({ type: UNSET_FLASH_MESSAGE });
+  };
+
   return (
     <ReactFragment>
       <CssBaseline />
@@ -65,6 +77,17 @@ function App() {
             {/* <Grid {...mainGridConfigForSideSpace} item /> */}
           </Grid>
         </Grid>
+        {flashMessage && (
+          <Snackbar
+            open={flashMessage && flashMessage.length}
+            autoHideDuration={6000}
+            onClose={snackClose}
+          >
+            <Alert onClose={snackClose} severity={severity}>
+              {flashMessage}
+            </Alert>
+          </Snackbar>
+        )}
       </ThemeProvider>
     </ReactFragment>
   );

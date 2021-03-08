@@ -208,14 +208,20 @@ const AddCustomer = () => {
       .then(() => {
         dispatch({
           type: SET_FLASH_MESSAGE,
-          payload: 'Customer successfully created!',
+          payload: {
+            message: 'Customer successfully created!',
+            severity: 'success',
+          },
         });
       })
       .catch((err) => {
         dispatch({
           type: SET_FLASH_MESSAGE,
-          payload:
-            'Oh no! An unexpected error has occured... please try again later',
+          payload: {
+            message:
+              'Oh no! An unexpected error has occured... please try again later',
+            severity: 'error',
+          },
         });
         console.error(err);
       });
@@ -291,7 +297,12 @@ const AddCustomer = () => {
           </Grid>
           <AdditionalFields currentForm={currentForm} setField={setField} />
           <Grid item sm={12}>
-            <Button variant='contained' color='primary' disabled={!formValid}>
+            <Button
+              onClick={submitForm}
+              variant='contained'
+              color='primary'
+              disabled={!formValid}
+            >
               Submit
             </Button>
           </Grid>

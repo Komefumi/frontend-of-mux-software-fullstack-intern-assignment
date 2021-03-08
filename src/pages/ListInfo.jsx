@@ -16,6 +16,7 @@ import PaperLinkTabs from '../components/PaperLinkTabs';
 import DesiredSelect from '../components/DesiredSelect';
 
 import { getCustomers, getCustomerCount } from '../api';
+import { genEmptyFieldData } from '../utils';
 
 import {
   // ROUTE_ROOT,
@@ -58,6 +59,7 @@ const CustomerListing = ({ currentStore }) => {
   const [currentPage, setCurrentPage] = useState(null);
   const [pageCount, setPageCount] = useState(null);
   const [customerList, setCustomerList] = useState([]);
+  const [emptyFieldDataForStore, setEmptyFieldDataForStore] = useState({});
 
   useEffect(() => {
     getCustomerCount(currentStore)
@@ -75,6 +77,16 @@ const CustomerListing = ({ currentStore }) => {
   }, [pageCount, currentPage]);
 
   useEffect(() => {
+    genEmptyFieldData(currentStore)
+      .then((genData) => {
+        setEmptyFieldDataForStore(genData);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }, [currentStore]);
+
+  useEffect(() => {
     getCustomers(currentStore, { limit: 10, skip: (currentPage - 1) * 10 })
       .then((data) => {
         console.log(data);
@@ -90,7 +102,7 @@ const CustomerListing = ({ currentStore }) => {
       {customerList.map((current) => {
         console.log(current);
         return (
-          <Accordion>
+          <Accordion key={current.email}>
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
               aria-controls='panel1a-content'
@@ -110,7 +122,10 @@ const CustomerListing = ({ currentStore }) => {
                 </Grid>
                 <Grid item container sm={12}>
                   {typeof current.additionalFields === 'object' &&
-                    Object.keys(current.additionalFields).map((key) => (
+                    Object.keys({
+                      ...emptyFieldDataForStore,
+                      ...current.additionalFields,
+                    }).map((key) => (
                       <Grid item sm={2}>
                         {key}: current.additionalFields[key]
                       </Grid>

@@ -6,6 +6,7 @@ import {
   Route,
   Redirect,
 } from 'react-router-dom';
+import { Provider } from 'react-redux';
 
 import { ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -15,6 +16,8 @@ import MainTabs from './components/MainTabs';
 
 import AddInfoPage from './pages/AddInfo';
 import ListInfoPage from './pages/ListInfo';
+
+import { store } from './store';
 
 import {
   theme,
@@ -69,4 +72,12 @@ function App() {
   );
 }
 
-export default App;
+function AppWithRedux() {
+  return (
+    <Provider store={store}>
+      <App />
+    </Provider>
+  );
+}
+
+export default AppWithRedux;

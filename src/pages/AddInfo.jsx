@@ -195,7 +195,7 @@ const AddCustomer = () => {
       lastName,
       address,
       phone,
-      dob,
+      birthday: dob,
       additionalFields: {},
     };
     const validItems = currentForm.filter((currentItem) => {

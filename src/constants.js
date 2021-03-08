@@ -30,6 +30,14 @@ const TYPES = [
   { label: 'Date', value: DATE_T },
 ];
 
+const TYPES_VALUES = [STRING_T, NUMBER_T, EMAIL_T, DATE_T];
+
+const ERROR = 'error';
+const SUCCESS = 'success';
+
+const STOCK_ERROR_FLASH =
+  'Oh no, it looks like an unexpected error occured... Please try again later';
+
 export {
   ROUTE_ROOT,
   ROUTE_MAJOR_ADD_INFO,
@@ -41,8 +49,12 @@ export {
   STORES_VALUES,
   STORES,
   TYPES,
+  TYPES_VALUES,
   STRING_T,
   NUMBER_T,
   EMAIL_T,
   DATE_T,
+  ERROR,
+  SUCCESS,
+  STOCK_ERROR_FLASH,
 };

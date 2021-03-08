@@ -23,8 +23,15 @@ import {
   checkIfNumber,
   checkIfPhone,
   validatorForTypes,
+  checkIfValidStore,
+  checkIfValidType,
 } from '../validators';
-import { useFormState, useAdditionalFormState } from '../hooks';
+import {
+  useFormState,
+  useAdditionalFormState,
+  useSuccessFlash,
+  useErrorFlash,
+} from '../hooks';
 
 import {
   // ROUTE_ROOT,
@@ -39,6 +46,7 @@ import {
   NUMBER_T,
   DATE_T,
   SET_FLASH_MESSAGE,
+  STOCK_ERROR_FLASH,
   // ROUTE_MINOR_ADD_FIELD,
 } from '../constants';
 
@@ -319,6 +327,33 @@ const AddField = () => {
   const [chosenType, setChosenType] = useState('');
   const [fieldName, setFieldName] = useState('');
   const [isValid, setIsValid] = useState(false);
+  const setErrorFlash = useErrorFlash();
+  const setSuccessFlash = useSuccessFlash();
+
+  useEffect(() => {
+    if (
+      stringExists(fieldName) &&
+      checkIfValidStore(store) &&
+      checkIfValidType(chosenType)
+    ) {
+      setIsValid(true);
+    } else {
+      setIsValid(false);
+    }
+  }, [fieldName, store, chosenType]);
+
+  const submitForm = () => {
+    createField(store, fieldName, chosenType)
+      .then(() => {
+        setSuccessFlash(
+          `Successfully created field ${fieldName} of type ${chosenType}`
+        );
+      })
+      .catch((err) => {
+        console.error(err);
+        setErrorFlash(STOCK_ERROR_FLASH);
+      });
+  };
 
   return (
     <form className={classes.root} noValidate autoComplete='off'>
@@ -346,8 +381,13 @@ const AddField = () => {
         Existing Additional Fields
       </Typography>
       <div>
-        <Button variant='contained' color='primary'>
-          Primary
+        <Button
+          onClick={submitForm}
+          variant='contained'
+          color='primary'
+          disabled={!isValid}
+        >
+          Submit
         </Button>
       </div>
     </form>

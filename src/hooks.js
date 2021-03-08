@@ -1,7 +1,16 @@
 import { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { nanoid } from 'nanoid';
 import MuiPhoneInput from 'material-ui-phone-number';
-import { DATE_T, EMAIL_T, NUMBER_T, STRING_T } from './constants';
+import {
+  DATE_T,
+  EMAIL_T,
+  NUMBER_T,
+  STRING_T,
+  SET_FLASH_MESSAGE,
+  ERROR,
+  SUCCESS,
+} from './constants';
 
 const useFormState = () => {
   const [currentForm, setCurrentForm] = useState(
@@ -88,4 +97,26 @@ const useAdditionalFormState = (specificationList) => {
   return [currentForm, setField, setCurrentForm];
 };
 
-export { useFormState, useAdditionalFormState };
+const useSuccessFlash = () => {
+  const dispatch = useDispatch();
+  const setSuccessFlash = (flashMessage) => {
+    dispatch({
+      type: SET_FLASH_MESSAGE,
+      payload: { message: flashMessage, severity: SUCCESS },
+    });
+  };
+  return setSuccessFlash;
+};
+
+const useErrorFlash = () => {
+  const dispatch = useDispatch();
+  const setErrorFlash = (flashMessage) => {
+    dispatch({
+      type: SET_FLASH_MESSAGE,
+      payload: { message: flashMessage, severity: ERROR },
+    });
+  };
+  return setErrorFlash;
+};
+
+export { useFormState, useAdditionalFormState, useSuccessFlash, useErrorFlash };

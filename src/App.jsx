@@ -19,11 +19,7 @@ import ListInfoPage from './pages/ListInfo';
 
 import { store } from './store';
 
-import {
-  theme,
-  mainGridConfigForSideSpace,
-  mainGridConfigForContent,
-} from './config/themeing';
+import { theme } from './config/themeing';
 
 import {
   ROUTE_ROOT,
@@ -49,8 +45,9 @@ function App() {
             <Grid {...mainGridConfigForSideSpace} />
           </Grid> */}
           <Grid item container>
-            <Grid {...mainGridConfigForSideSpace} item />
-            <Grid {...mainGridConfigForContent} item>
+            {/* <Grid {...mainGridConfigForSideSpace} item /> */}
+            <Grid sm={false} md={2} item />
+            <Grid sm={12} md={8} item container direction='column'>
               {/* This is where we will have the content */}
               <Router>
                 <MainTabs />
@@ -64,7 +61,8 @@ function App() {
                 </Switch>
               </Router>
             </Grid>
-            <Grid {...mainGridConfigForSideSpace} item />
+            <Grid sm={false} md={2} item />
+            {/* <Grid {...mainGridConfigForSideSpace} item /> */}
           </Grid>
         </Grid>
       </ThemeProvider>

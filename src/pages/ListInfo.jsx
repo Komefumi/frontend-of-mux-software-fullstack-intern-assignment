@@ -7,15 +7,25 @@ import {
   Typography,
   Grid,
   Card,
+  Button,
 } from '@material-ui/core';
 import { Pagination } from '@material-ui/lab';
-import { ExpandMore as ExpandMoreIcon } from '@material-ui/icons';
+import {
+  ExpandMore as ExpandMoreIcon,
+  Delete as DeleteIcon,
+} from '@material-ui/icons';
 import { Switch, Route, Redirect } from 'react-router-dom';
 
 import PaperLinkTabs from '../components/PaperLinkTabs';
 import DesiredSelect from '../components/DesiredSelect';
 
-import { getCustomers, getCustomerCount } from '../api';
+import {
+  useSuccessFlash,
+  useErrorFlash,
+  useDialogSetter,
+  useDialogClose,
+} from '../hooks';
+import { getCustomers, getCustomerCount, deleteCustomer } from '../api';
 import { genEmptyFieldData } from '../utils';
 
 import {
@@ -25,6 +35,7 @@ import {
   ROUTE_MINOR_FIELD,
   STORES,
   STORES_VALUES,
+  STOCK_ERROR_FLASH,
   // ROUTE_MINOR_ADD_FIELD,
 } from '../constants';
 
@@ -60,6 +71,11 @@ const CustomerListing = ({ currentStore }) => {
   const [pageCount, setPageCount] = useState(null);
   const [customerList, setCustomerList] = useState([]);
   const [emptyFieldDataForStore, setEmptyFieldDataForStore] = useState({});
+  const [recheckSwitch, setRecheckSwitch] = useState(false);
+  const dialogSetter = useDialogSetter();
+  const dialogClose = useDialogClose();
+  const setSuccessFlash = useSuccessFlash();
+  const setFailureFlash = useErrorFlash();
 
   useEffect(() => {
     getCustomerCount(currentStore)
@@ -84,7 +100,7 @@ const CustomerListing = ({ currentStore }) => {
       .catch((err) => {
         console.error(err);
       });
-  }, [currentStore]);
+  }, [currentStore, recheckSwitch]);
 
   useEffect(() => {
     getCustomers(currentStore, { limit: 10, skip: (currentPage - 1) * 10 })
@@ -101,6 +117,20 @@ const CustomerListing = ({ currentStore }) => {
     <div className={classes.root}>
       {customerList.map((current) => {
         console.log(current);
+        const onClose = dialogClose;
+        const onConfirm = () => {
+          deleteCustomer(currentStore, current.email)
+            .then(() => {
+              setSuccessFlash('Successfully deleted customer');
+              dialogClose();
+              setRecheckSwitch(!recheckSwitch);
+            })
+            .catch((err) => {
+              console.error(err);
+              setFailureFlash(STOCK_ERROR_FLASH);
+              dialogClose();
+            });
+        };
         return (
           <Accordion key={current.email}>
             <AccordionSummary
@@ -108,9 +138,32 @@ const CustomerListing = ({ currentStore }) => {
               aria-controls='panel1a-content'
               id='panel1a-header'
             >
-              <Typography className={classes.heading}>
+              {/* <Typography className={classes.heading}>
                 {current.email} - {current.firstName} {current.lastName}
-              </Typography>
+              </Typography> */}
+              <Grid container>
+                <Grid item xs={12} sm={10}>
+                  {current.email} - {current.firstName} {current.lastName}
+                </Grid>
+                <Grid item xs={12} sm={2}>
+                  <Button
+                    variant='contained'
+                    color='secondary'
+                    onClick={() => {
+                      dialogSetter({
+                        title: 'Delete customer ' + current.email + '?',
+                        body:
+                          'This operation cannot be undone and the deleted customer can only be manually re-entered',
+                        onConfirm,
+                        onCancel: onClose,
+                      });
+                    }}
+                    startIcon={<DeleteIcon />}
+                  >
+                    Delete
+                  </Button>
+                </Grid>
+              </Grid>
             </AccordionSummary>
             <AccordionDetails>
               <Grid container>

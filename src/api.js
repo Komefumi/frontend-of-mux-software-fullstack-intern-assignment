@@ -23,6 +23,13 @@ const createCustomer = (storeName, customerData) => {
     .then((dataFormal) => dataFormal.data);
 };
 
+const deleteCustomer = (storeName, email) => {
+  return axiosInstance
+    .delete('/customers', { params: { store: storeName }, data: { email } })
+    .then(responseToData)
+    .then((dataFormal) => dataFormal.data);
+};
+
 const getCustomerCount = (storeName) => {
   return axiosInstance
     .get('/customers/count', { params: { store: storeName } })
@@ -50,6 +57,7 @@ const createField = (storeName, fieldName, fieldType) => {
 export {
   getCustomers,
   createCustomer,
+  deleteCustomer,
   listFields,
   createField,
   getCustomerCount,

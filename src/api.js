@@ -16,7 +16,12 @@ const getCustomers = (storeName) => {
     .then((dataFormal) => dataFormal.data);
 };
 
-const createCustomer = (storeName, customerData) => {};
+const createCustomer = (storeName, customerData) => {
+  return axiosInstance
+    .post('/customers', { params: { store: storeName }, data: customerData })
+    .then(responseToData)
+    .then((dataFormal) => dataFormal.data);
+};
 
 const listFields = (storeName) => {
   return axiosInstance

@@ -8,16 +8,26 @@ const ROUTE_MINOR_FIELD = 'field';
 const SET_FLASH_MESSAGE = 'SET_FLASH_MESSAGE';
 const UNSET_FLASH_MESSAGE = 'UNSET_FLASH_MESSAGE';
 
+const ELECTRONICS = 'electronics';
+const TOYS = 'toys';
+
+const STORES_VALUES = [ELECTRONICS, TOYS];
+
 const STORES = [
   { label: 'Electronics Store', value: 'electronics' },
   { label: 'Toy Store', value: 'toys' },
 ];
 
+const STRING_T = 'string';
+const NUMBER_T = 'number';
+const EMAIL_T = 'email';
+const DATE_T = 'date';
+
 const TYPES = [
-  { label: 'String', value: 'string' },
-  { label: 'Number', value: 'number' },
-  { label: 'Email', value: 'email' },
-  { label: 'Date', value: 'date' },
+  { label: 'String', value: STRING_T },
+  { label: 'Number', value: NUMBER_T },
+  { label: 'Email', value: EMAIL_T },
+  { label: 'Date', value: DATE_T },
 ];
 
 export {
@@ -28,6 +38,11 @@ export {
   ROUTE_MINOR_FIELD,
   SET_FLASH_MESSAGE,
   UNSET_FLASH_MESSAGE,
+  STORES_VALUES,
   STORES,
   TYPES,
+  STRING_T,
+  NUMBER_T,
+  EMAIL_T,
+  DATE_T,
 };

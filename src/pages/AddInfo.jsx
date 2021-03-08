@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { Grid, Typography, TextField, Button } from '@material-ui/core';
 import MuiPhoneInput from 'material-ui-phone-number';
 import DateFnsUtils from '@date-io/date-fns';
@@ -13,17 +14,31 @@ import { makeStyles } from '@material-ui/core/styles';
 import PaperLinkTabs from '../components/PaperLinkTabs';
 import DesiredSelect from '../components/DesiredSelect';
 
-import { createField } from '../api';
+import { createField, listFields, createCustomer } from '../api';
 import { handlerFromSetter } from '../utils';
-import { useFormState } from '../hooks';
+import {
+  stringExists,
+  checkIfDate,
+  checkIfEmail,
+  checkIfNumber,
+  checkIfPhone,
+  validatorForTypes,
+} from '../validators';
+import { useFormState, useAdditionalFormState } from '../hooks';
 
 import {
   // ROUTE_ROOT,
   ROUTE_MAJOR_ADD_INFO,
   ROUTE_MINOR_CUSTOMER,
   ROUTE_MINOR_FIELD,
+  STORES_VALUES,
   STORES,
   TYPES,
+  STRING_T,
+  EMAIL_T,
+  NUMBER_T,
+  DATE_T,
+  SET_FLASH_MESSAGE,
   // ROUTE_MINOR_ADD_FIELD,
 } from '../constants';
 
@@ -44,52 +59,166 @@ const useStyles = makeStyles((theme) => ({
   selectEmpty: {
     marginTop: theme.spacing(2),
   },
+  additionalFieldsSeperatorTitle: {
+    marginTop: theme.spacing(3),
+    // marginBottom: theme.spacing(1),
+  },
 }));
 
-{
-  /* {currentForm.map(
-          ({
-            fieldType,
-            fieldName,
-            fieldLabel,
-            SpecificElement,
-            value,
-            properties,
-          }) => {
-            let RenderingElement = null;
-            if (SpecificElement) {
-              RenderingElement = SpecificElement;
-            } else {
-              switch (fieldType) {
-                case STRING_T:
-                  RenderingElement = TextField;
-                  break;
-                case EMAIL_T:
-                  RenderingElement = TextField;
-                  break;
-                case NUMBER_T:
-                  RenderingElement = TextField;
-                case DATE_T:
-                  RenderingElement = DateFi;
-              }
-            }
-            return <Grid item xs={6} sm={3}></Grid>;
-          }
-        )} */
-}
+const AdditionalFields = ({ currentForm, setField }) => {
+  console.log(currentForm);
+  return (
+    <>
+      {currentForm.map((current) => {
+        const { fieldType, fieldName, value, id } = current;
+        console.log({ fieldType });
+        const onChange = (e) => {
+          setField(id, e.target.value);
+        };
+        let Inner = null;
+        switch (fieldType) {
+          case STRING_T:
+            Inner = () => (
+              <TextField label={fieldName} value={value} onChange={onChange} />
+            );
+            break;
+          case NUMBER_T:
+            Inner = () => (
+              <TextField
+                label={fieldName}
+                value={value}
+                onChange={onChange}
+                type='number'
+              />
+            );
+            break;
+          case EMAIL_T:
+            Inner = () => (
+              <TextField
+                label={fieldName}
+                value={value}
+                onChange={onChange}
+                type='email'
+              />
+            );
+            break;
+          case DATE_T:
+            Inner = () => (
+              <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                <KeyboardDatePicker
+                  margin='normal'
+                  id='date-picker-dialog'
+                  label='Date of Birth'
+                  format='MM/dd/yyyy'
+                  value={value}
+                  onChange={(date) => {
+                    setField(id, date);
+                  }}
+                  KeyboardButtonProps={{
+                    'aria-label': 'change date',
+                  }}
+                />
+              </MuiPickersUtilsProvider>
+            );
+            break;
+          default:
+            Inner = () => null;
+        }
+
+        return (
+          <Grid item sm={12} key={id}>
+            <Inner />
+          </Grid>
+        );
+      })}
+    </>
+  );
+};
 
 const AddCustomer = () => {
   const classes = useStyles();
+  const dispatch = useDispatch();
   // const [currentForm, setField] = useFormState();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [address, setAddress] = useState('');
   const [phone, setPhone] = useState();
-  const [dob, setDob] = useState();
+  const [dob, setDob] = useState(new Date());
   const [store, setStore] = useState('');
+  const [currentForm, setField, setCurrentFormSeed] = useAdditionalFormState(
+    []
+  );
+  const [formValid, setFormValid] = useState(false);
+  console.log({ currentForm });
+
+  useEffect(() => {
+    console.log({ store, index: STORES_VALUES.indexOf(store.toLowerCase()) });
+    if (STORES_VALUES.indexOf(store.toLowerCase()) === -1) return;
+    listFields(store)
+      .then((data) => {
+        const { fields } = data;
+        const fieldsWithVal = fields.map((current) => ({
+          ...current,
+          val: null,
+        }));
+        setCurrentFormSeed(fieldsWithVal);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }, [store, setCurrentFormSeed]);
+
+  useEffect(() => {
+    const anyStringInvalid = [firstName, lastName, address].some(
+      (current) => !stringExists(current)
+    );
+    if (
+      anyStringInvalid ||
+      !checkIfDate(dob) ||
+      !checkIfPhone(phone) ||
+      STORES_VALUES.indexOf(store) === -1
+    ) {
+      setFormValid(false);
+      return;
+    }
+
+    setFormValid(true);
+  }, [firstName, lastName, address, phone, dob, store]);
 
   const handleDobChange = (date) => {
     setDob(date);
+  };
+
+  const submitForm = () => {
+    const payload = {
+      firstName,
+      lastName,
+      address,
+      phone,
+      dob,
+      additionalFields: {},
+    };
+    const validItems = currentForm.filter((currentItem) => {
+      return validatorForTypes[currentItem.fieldType](currentItem.value);
+    });
+    validItems.forEach((current) => {
+      payload.additionalFields[current.fieldName] = current.value;
+    });
+    createCustomer(store, payload)
+      .then(() => {
+        dispatch({
+          type: SET_FLASH_MESSAGE,
+          payload: 'Customer successfully created!',
+        });
+      })
+      .catch((err) => {
+        dispatch({
+          type: SET_FLASH_MESSAGE,
+          payload:
+            'Oh no! An unexpected error has occured... please try again later',
+        });
+        console.error(err);
+      });
   };
 
   return (
@@ -119,6 +248,8 @@ const AddCustomer = () => {
               label='Address'
               multiline
               rowsMax={5}
+              value={address}
+              onChange={handlerFromSetter(setAddress)}
             />
           </Grid>
           <Grid item sm={12}>
@@ -153,15 +284,18 @@ const AddCustomer = () => {
               onSelect={setStore}
             />
           </Grid>
+          <Grid className={classes.additionalFieldsSeperatorTitle} item sm={12}>
+            <Typography color='primary' variant='h5'>
+              Additional Fields
+            </Typography>
+          </Grid>
+          <AdditionalFields currentForm={currentForm} setField={setField} />
+          <Grid item sm={12}>
+            <Button variant='contained' color='primary' disabled={!formValid}>
+              Submit
+            </Button>
+          </Grid>
         </Grid>
-        <Typography color='primary' variant='h5'>
-          Additional Fields
-        </Typography>
-        <div>
-          <Button variant='contained' color='primary'>
-            Primary
-          </Button>
-        </div>
       </form>
     </Grid>
   );

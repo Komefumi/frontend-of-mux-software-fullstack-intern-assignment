@@ -72,7 +72,9 @@ const useFormState = () => {
  */
 const useAdditionalFormState = (specificationList) => {
   const [currentForm, setCurrentForm] = useState(
-    specificationList.map((current) => ({ ...current, id: nanoid() }))
+    specificationList.map((current) => {
+      return { ...current, id: nanoid() };
+    })
   );
 
   const setField = (idToLookFor, val) => {
@@ -83,7 +85,7 @@ const useAdditionalFormState = (specificationList) => {
     setCurrentForm(newForm);
   };
 
-  return [currentForm, setField];
+  return [currentForm, setField, setCurrentForm];
 };
 
 export { useFormState, useAdditionalFormState };

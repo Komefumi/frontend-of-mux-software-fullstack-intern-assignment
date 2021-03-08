@@ -8,8 +8,10 @@ import {
   NUMBER_T,
   STRING_T,
   SET_FLASH_MESSAGE,
+  SET_DIALOG,
   ERROR,
   SUCCESS,
+  UNSET_DIALOG,
 } from './constants';
 
 const useFormState = () => {
@@ -119,4 +121,32 @@ const useErrorFlash = () => {
   return setErrorFlash;
 };
 
-export { useFormState, useAdditionalFormState, useSuccessFlash, useErrorFlash };
+const useDialogSetter = () => {
+  const dispatch = useDispatch();
+  const setDialog = (payload) => {
+    dispatch({
+      type: SET_DIALOG,
+      payload,
+    });
+  };
+  return setDialog;
+};
+
+const useDialogClose = () => {
+  const dispatch = useDispatch();
+  const closeDialog = () => {
+    dispatch({
+      type: UNSET_DIALOG,
+    });
+  };
+  return closeDialog;
+};
+
+export {
+  useFormState,
+  useAdditionalFormState,
+  useSuccessFlash,
+  useErrorFlash,
+  useDialogSetter,
+  useDialogClose,
+};

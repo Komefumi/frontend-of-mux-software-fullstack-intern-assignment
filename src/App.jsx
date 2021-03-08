@@ -14,6 +14,7 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 
 import Header from './components/Header';
 import MainTabs from './components/MainTabs';
+import ConfirmDialog from './components/ConfirmDialog';
 
 import AddInfoPage from './pages/AddInfo';
 import ListInfoPage from './pages/ListInfo';
@@ -34,7 +35,11 @@ const Alert = (props) => {
 };
 
 function App() {
-  const { flashMessage, severity } = useSelector((state) => state.notification);
+  const {
+    flashMessage,
+    severity,
+    dialog: { title: dialogOpen },
+  } = useSelector((state) => state.notification);
   const dispatch = useDispatch();
 
   const snackClose = () => {
@@ -89,6 +94,7 @@ function App() {
             </Alert>
           </Snackbar>
         )}
+        {dialogOpen && <ConfirmDialog />}
       </ThemeProvider>
     </ReactFragment>
   );

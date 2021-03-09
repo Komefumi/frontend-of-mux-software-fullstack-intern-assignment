@@ -7,9 +7,13 @@ const handlerFromSetter = (setter) => (e) => {
 const genEmptyFieldData = (storeName) => {
   return listFields(storeName).then((data) => {
     const { fields } = data;
-    const emptyFieldData = fields.reduce((accum, { fieldName }) => {
-      return { ...accum, [fieldName]: '' };
-    }, {});
+    const emptyFieldData = Object.keys(fields).reduce(
+      (accum, fieldName) => ({ ...accum, [fieldName]: fields[fieldName] }),
+      {}
+    );
+    // const emptyFieldData = fields.reduce((accum, { fieldName }) => {
+    //   return { ...accum, [fieldName]: '' };
+    // }, {});
     return emptyFieldData;
   });
 };

@@ -1,26 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Paper, Tabs, Tab } from '@material-ui/core';
-import { useHistory, useRouteMatch, useLocation, Link } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { ROUTE_MAJOR_ADD_INFO, ROUTE_MAJOR_LIST_INFO } from '../constants';
 
-const useStateFromRoute = () => {
+const MainTabs = () => {
+  // const [value, setValue] = useStateFromRoute();
+  const [value, setValue] = useState(0);
   const { pathname } = useLocation();
-  const location = pathname.slice(1).split('/')[0];
-  let val = null;
 
-  if ('/' + location === ROUTE_MAJOR_ADD_INFO) val = 0;
-  else val = 1;
-
-  return useState(val);
-};
-
-const DisabledTabs = () => {
-  const [value, setValue] = useStateFromRoute();
-  const result = useLocation();
-
-  const handleChange = (event, newValue) => {
+  const handleChange = (_event, newValue) => {
     setValue(newValue);
   };
+
+  useEffect(() => {
+    const val = pathname.split('/')[1];
+    if (val === 'add') setValue(0);
+    else setValue(1);
+  }, [pathname]);
 
   return (
     <Paper style={{ zIndex: 1 }} square>
@@ -47,4 +43,4 @@ const DisabledTabs = () => {
   );
 };
 
-export default DisabledTabs;
+export default MainTabs;

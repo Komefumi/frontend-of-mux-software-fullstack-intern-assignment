@@ -6,7 +6,6 @@ import {
   EMAIL_T,
   DATE_T,
   STORES_VALUES,
-  TYPES,
   TYPES_VALUES,
 } from './constants';
 

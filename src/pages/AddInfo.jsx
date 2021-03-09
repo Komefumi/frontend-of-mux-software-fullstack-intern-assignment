@@ -435,7 +435,9 @@ const AddField = () => {
         fieldName.toLowerCase()
       ) !== -1
     ) {
-      return setErrorFlash('Additional Field cannot be that of a standard one');
+      return setErrorFlash(
+        'Additional Field cannot have name of a standard one'
+      );
     }
     createField(store, fieldName, chosenType)
       .then(() => {

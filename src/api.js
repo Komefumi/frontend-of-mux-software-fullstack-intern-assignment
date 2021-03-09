@@ -9,15 +9,14 @@ const axiosInstance = axios.create({
 
 const responseToData = (response) => response.data;
 
-const getCustomers = (storeName) => {
+const getCustomers = (storeName, { limit, skip }) => {
   return axiosInstance
-    .get('/customers', { params: { store: storeName } })
+    .get('/customers', { params: { store: storeName, skip, limit } })
     .then(responseToData)
     .then((dataFormal) => dataFormal.data);
 };
 
 const createCustomer = (storeName, customerData) => {
-  console.log({ storeName });
   return axiosInstance
     .post('/customers', customerData, { params: { store: storeName } })
     .then(responseToData)
@@ -47,9 +46,22 @@ const listFields = (storeName) => {
 
 const createField = (storeName, fieldName, fieldType) => {
   return axiosInstance
-    .post('/fields', {
+    .post(
+      '/fields',
+      { fieldName, fieldType },
+      {
+        params: { store: storeName },
+      }
+    )
+    .then(responseToData)
+    .then((dataFormal) => dataFormal.data);
+};
+
+const deleteField = (storeName, fieldName) => {
+  return axiosInstance
+    .delete('/fields', {
       params: { store: storeName },
-      data: { fieldName, fieldType },
+      data: { fieldName },
     })
     .then(responseToData)
     .then((dataFormal) => dataFormal.data);
@@ -61,5 +73,6 @@ export {
   deleteCustomer,
   listFields,
   createField,
+  deleteField,
   getCustomerCount,
 };

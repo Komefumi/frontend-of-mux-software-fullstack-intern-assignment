@@ -1,5 +1,6 @@
 {
   "name": "mux-software-fullstack-intern-assignment",
+  "homepage": "https://Komefumi.github.io/frontend-of-mux-software-fullstack-intern-assignment",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -16,6 +17,7 @@
     "@testing-library/user-event": "^12.8.1",
     "axios": "^0.21.1",
     "date-fns": "^2.19.0",
+    "gh-pages": "^3.1.0",
     "material-ui-phone-number": "^2.2.6",
     "nanoid": "^3.1.20",
     "phone": "^2.4.21",
@@ -29,6 +31,8 @@
     "web-vitals": "^1.1.0"
   },
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",

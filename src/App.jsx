@@ -2,7 +2,7 @@ import React, { Fragment as ReactFragment } from 'react';
 import { Grid, Snackbar } from '@material-ui/core';
 import { Alert as MuiAlert } from '@material-ui/lab';
 import {
-  BrowserRouter as Router,
+  HashRouter as Router,
   Switch,
   Route,
   Redirect,

@@ -57,6 +57,7 @@ const useStyles = makeStyles((theme) => ({
     '& .MuiTextField-root': {
       margin: theme.spacing(1),
       width: 200,
+      padding: theme.spacing(1),
     },
   },
   formControl: {
@@ -68,6 +69,7 @@ const useStyles = makeStyles((theme) => ({
   },
   additionalFieldsSeperatorTitle: {
     marginTop: theme.spacing(3),
+    marginLeft: theme.spacing(1),
     // marginBottom: theme.spacing(1),
   },
   fieldDeletionButton: {
@@ -76,9 +78,15 @@ const useStyles = makeStyles((theme) => ({
   additionalFieldsTitle: {
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
+    marginLeft: theme.spacing(1),
   },
   addFieldGrid: {
     marginBottom: theme.spacing(1),
+    padding: theme.spacing(1),
+  },
+  submitButton: {
+    marginTop: theme.spacing(2),
+    marginLeft: theme.spacing(1),
   },
 }));
 
@@ -348,7 +356,7 @@ const AddCustomer = () => {
               onSelect={setStore}
             />
           </Grid>
-          <Grid className={classes.additionalFieldsSeperatorTitle} item sm={12}>
+          <Grid className={classes.additionalFieldsSeperatorTitle} item xs={12}>
             <Typography color='primary' variant='h5'>
               Additional Fields
             </Typography>
@@ -366,6 +374,7 @@ const AddCustomer = () => {
               variant='contained'
               color='primary'
               disabled={!formValid}
+              className={classes.submitButton}
             >
               Submit
             </Button>
@@ -524,6 +533,7 @@ const AddField = () => {
             onClick={submitForm}
             variant='contained'
             color='primary'
+            className={classes.submitButton}
             disabled={!isValid}
           >
             Submit

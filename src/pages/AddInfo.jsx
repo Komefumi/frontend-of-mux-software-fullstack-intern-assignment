@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { Grid, Typography, TextField, Button } from '@material-ui/core';
+import { Delete as DeleteIcon } from '@material-ui/icons';
 import MuiPhoneInput from 'material-ui-phone-number';
 import DateFnsUtils from '@date-io/date-fns';
 import {
   MuiPickersUtilsProvider,
-  KeyboardTimePicker,
   KeyboardDatePicker,
 } from '@material-ui/pickers';
 import { makeStyles } from '@material-ui/core/styles';
@@ -14,23 +14,21 @@ import { makeStyles } from '@material-ui/core/styles';
 import PaperLinkTabs from '../components/PaperLinkTabs';
 import DesiredSelect from '../components/DesiredSelect';
 
-import { createField, listFields, createCustomer } from '../api';
+import { createField, listFields, createCustomer, deleteField } from '../api';
 import { handlerFromSetter } from '../utils';
 import {
   stringExists,
   checkIfDate,
   checkIfEmail,
-  checkIfNumber,
   checkIfPhone,
-  validatorForTypes,
   checkIfValidStore,
   checkIfValidType,
 } from '../validators';
 import {
-  useFormState,
-  useAdditionalFormState,
   useSuccessFlash,
   useErrorFlash,
+  useDialogSetter,
+  useDialogClose,
 } from '../hooks';
 
 import {
@@ -39,6 +37,7 @@ import {
   ROUTE_MINOR_CUSTOMER,
   ROUTE_MINOR_FIELD,
   STORES_VALUES,
+  BLACKLIST_CUSTOM_FIELD_NAMES_IN_LOWERCASE,
   STORES,
   TYPES,
   STRING_T,
@@ -71,6 +70,16 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(3),
     // marginBottom: theme.spacing(1),
   },
+  fieldDeletionButton: {
+    marginLeft: theme.spacing(3),
+  },
+  additionalFieldsTitle: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  },
+  addFieldGrid: {
+    marginBottom: theme.spacing(1),
+  },
 }));
 
 const AdditionalFields = ({
@@ -97,7 +106,6 @@ const AdditionalFields = ({
   return (
     <>
       {Object.keys(propertyMap).map((fieldName, index) => {
-        const value = formState[fieldName];
         const fieldType = propertyMap[fieldName];
         const onChange = (e) => {
           setFormState({ ...formState, [fieldName]: e.target.value });
@@ -142,8 +150,8 @@ const AdditionalFields = ({
               <MuiPickersUtilsProvider utils={DateFnsUtils}>
                 <KeyboardDatePicker
                   margin='normal'
-                  id='date-picker-dialog'
-                  label='Date of Birth'
+                  // id='date-picker-dialog'
+                  label={fieldName}
                   format='MM/dd/yyyy'
                   key={fieldName}
                   // value={value}
@@ -170,7 +178,6 @@ const AdditionalFields = ({
 const AddCustomer = () => {
   const classes = useStyles();
   const dispatch = useDispatch();
-  // const [currentForm, setField] = useFormState();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -178,9 +185,7 @@ const AddCustomer = () => {
   const [phone, setPhone] = useState();
   const [dob, setDob] = useState(new Date());
   const [store, setStore] = useState('');
-  const [currentForm, setField, setCurrentFormSeed] = useAdditionalFormState(
-    []
-  );
+
   const [formValid, setFormValid] = useState(false);
   const [propertyMapForAdditional, setPropertyMapForAdditional] = useState(
     null
@@ -193,18 +198,13 @@ const AddCustomer = () => {
     listFields(store)
       .then((data) => {
         const { fields } = data;
-        // const fieldsWithVal = fields.map((current) => ({
-        //   ...current,
-        //   value: '',
-        //   id: nanoid(),
-        // }));
 
         setPropertyMapForAdditional(fields);
       })
       .catch((err) => {
         console.error(err);
       });
-  }, [store, setCurrentFormSeed]);
+  }, [store]);
 
   useEffect(() => {
     const anyStringInvalid = [firstName, lastName, address].some(
@@ -253,7 +253,6 @@ const AddCustomer = () => {
       additionalFields: {},
     };
     payload = { ...payload, additionalFields: additionalData };
-    console.log({ payload, store });
 
     createCustomer(store, payload)
       .then(() => {
@@ -380,12 +379,34 @@ const AddCustomer = () => {
 const AddField = () => {
   const classes = useStyles();
   // const [store, setStoreOnChange] = useStore();
-  const [store, setStore] = useState('');
+  const [store, setStore] = useState(STORES_VALUES[0]);
   const [chosenType, setChosenType] = useState('');
   const [fieldName, setFieldName] = useState('');
   const [isValid, setIsValid] = useState(false);
+  const [fieldMap, setFieldMap] = useState({});
+  const [triggerFieldsRetSwitch, setTriggerFieldsRetSwitch] = useState(false);
   const setErrorFlash = useErrorFlash();
   const setSuccessFlash = useSuccessFlash();
+  const dialogSetter = useDialogSetter();
+  const dialogClose = useDialogClose();
+
+  const retFieldsAgain = () => {
+    setTriggerFieldsRetSwitch(!triggerFieldsRetSwitch);
+  };
+
+  useEffect(() => {
+    listFields(store)
+      .then((data) => {
+        const { fields } = data;
+        setFieldMap(fields);
+      })
+      .catch((err) => {
+        console.error(err);
+        setErrorFlash(
+          'Failed to retrieve field data at this time... please try again later'
+        );
+      });
+  }, [store, setErrorFlash, triggerFieldsRetSwitch]);
 
   useEffect(() => {
     if (
@@ -400,11 +421,19 @@ const AddField = () => {
   }, [fieldName, store, chosenType]);
 
   const submitForm = () => {
+    if (
+      BLACKLIST_CUSTOM_FIELD_NAMES_IN_LOWERCASE.indexOf(
+        fieldName.toLowerCase()
+      ) !== -1
+    ) {
+      return setErrorFlash('Additional Field cannot be that of a standard one');
+    }
     createField(store, fieldName, chosenType)
       .then(() => {
         setSuccessFlash(
           `Successfully created field ${fieldName} of type ${chosenType}`
         );
+        retFieldsAgain();
       })
       .catch((err) => {
         console.error(err);
@@ -414,39 +443,93 @@ const AddField = () => {
 
   return (
     <form className={classes.root} noValidate autoComplete='off'>
-      <div>
-        <TextField
-          id='field-name'
-          label='Field Name'
-          value={fieldName}
-          onChange={handlerFromSetter(setFieldName)}
-        />
-        <DesiredSelect
-          inputLabel='Type'
-          selectionData={TYPES}
-          control={chosenType}
-          onSelect={setChosenType}
-        />
-        <DesiredSelect
-          inputLabel='Store'
-          selectionData={STORES}
-          control={store}
-          onSelect={setStore}
-        />
-      </div>
-      <Typography color='primary' variant='h5'>
-        Existing Additional Fields
-      </Typography>
-      <div>
-        <Button
-          onClick={submitForm}
-          variant='contained'
-          color='primary'
-          disabled={!isValid}
-        >
-          Submit
-        </Button>
-      </div>
+      <Grid container>
+        <Grid item xs={12} md={3}>
+          <TextField
+            id='field-name'
+            label='Field Name'
+            value={fieldName}
+            onChange={handlerFromSetter(setFieldName)}
+          />
+        </Grid>
+        <Grid item xs={12} md={3}>
+          <DesiredSelect
+            inputLabel='Type'
+            selectionData={TYPES}
+            control={chosenType}
+            onSelect={setChosenType}
+          />
+        </Grid>
+
+        <Grid item xs={12} md={3}>
+          <DesiredSelect
+            inputLabel='Store'
+            selectionData={STORES}
+            control={store}
+            onSelect={setStore}
+          />
+        </Grid>
+        <Grid className={classes.additionalFieldsTitle} item xs={12}>
+          <Typography color='primary' variant='h5'>
+            Existing Additional Fields
+          </Typography>
+        </Grid>
+
+        {Object.keys(fieldMap).map((fieldName) => {
+          return (
+            <Grid
+              key={fieldName}
+              item
+              xs={12}
+              sm={10}
+              md={8}
+              className={classes.addFieldGrid}
+            >
+              {fieldName}: {fieldMap[fieldName]}{' '}
+              <Button
+                variant='contained'
+                color='secondary'
+                size='small'
+                className={classes.fieldDeletionButton}
+                onClick={() => {
+                  const desc = `${fieldName} of type ${fieldMap[fieldName]}`;
+                  dialogSetter({
+                    title: `Delete field ${desc}?`,
+                    body:
+                      'This operation cannot be undone and the deleted field can only be manually re-entered',
+                    onConfirm: () => {
+                      deleteField(store, fieldName)
+                        .then(() => {
+                          setSuccessFlash(`Successfully deleted ${desc}`);
+                          retFieldsAgain();
+                          dialogClose();
+                        })
+                        .catch((err) => {
+                          console.error(err);
+                          setErrorFlash(STOCK_ERROR_FLASH);
+                        });
+                    },
+                    onCancel: dialogClose,
+                  });
+                }}
+                startIcon={<DeleteIcon />}
+              >
+                Delete
+              </Button>
+            </Grid>
+          );
+        })}
+        <Grid item xs={12}>
+          <Button
+            onClick={submitForm}
+            variant='contained'
+            color='primary'
+            disabled={!isValid}
+          >
+            Submit
+          </Button>
+        </Grid>
+      </Grid>
     </form>
   );
 };

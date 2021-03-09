@@ -35,6 +35,17 @@ const TYPES = [
 
 const TYPES_VALUES = [STRING_T, NUMBER_T, EMAIL_T, DATE_T];
 
+const BLACKLIST_CUSTOM_FIELD_NAMES_IN_LOWERCASE = [
+  'firstname',
+  'lastname',
+  'email',
+  'dob',
+  'birthday',
+  'address',
+  'phone',
+  'store',
+];
+
 const ERROR = 'error';
 const SUCCESS = 'success';
 
@@ -55,6 +66,7 @@ export {
   STORES,
   TYPES,
   TYPES_VALUES,
+  BLACKLIST_CUSTOM_FIELD_NAMES_IN_LOWERCASE,
   STRING_T,
   NUMBER_T,
   EMAIL_T,

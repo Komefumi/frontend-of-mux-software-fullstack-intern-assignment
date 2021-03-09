@@ -1,22 +1,9 @@
 import { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import {
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  Typography,
-  Grid,
-  Card,
-  Button,
-} from '@material-ui/core';
+import { Grid, Card, Button } from '@material-ui/core';
 import { Pagination } from '@material-ui/lab';
-import {
-  ExpandMore as ExpandMoreIcon,
-  Delete as DeleteIcon,
-} from '@material-ui/icons';
-import { Switch, Route, Redirect } from 'react-router-dom';
+import { Delete as DeleteIcon } from '@material-ui/icons';
 
-import PaperLinkTabs from '../components/PaperLinkTabs';
 import DesiredSelect from '../components/DesiredSelect';
 
 import {
@@ -28,24 +15,12 @@ import {
 import { getCustomers, getCustomerCount, deleteCustomer } from '../api';
 import { genEmptyFieldData } from '../utils';
 
-import {
-  // ROUTE_ROOT,
-  ROUTE_MAJOR_LIST_INFO,
-  ROUTE_MINOR_CUSTOMER,
-  ROUTE_MINOR_FIELD,
-  STORES,
-  STORES_VALUES,
-  STOCK_ERROR_FLASH,
-  // ROUTE_MINOR_ADD_FIELD,
-} from '../constants';
+import { STORES, STORES_VALUES, STOCK_ERROR_FLASH } from '../constants';
 
-const ROUTE_LIST_CUSTOMERS = `${ROUTE_MAJOR_LIST_INFO}/${ROUTE_MINOR_CUSTOMER}/`;
-const ROUTE_LIST_FIELDS = `${ROUTE_MAJOR_LIST_INFO}/${ROUTE_MINOR_FIELD}/`;
-
-const BasicPagination = ({ pages }) => {
+const BasicPagination = ({ pages, onChange }) => {
   return (
     <Grid item sm={12}>
-      <Pagination count={pages} />
+      <Pagination count={pages} onChange={onChange} />
     </Grid>
   );
 };
@@ -65,9 +40,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const CustomerListing = ({ currentStore }) => {
-  const classes = useStyles();
-  const [userData, setUserData] = useState([]);
-  const [currentPage, setCurrentPage] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const [pageCount, setPageCount] = useState(null);
   const [customerList, setCustomerList] = useState([]);
   const [emptyFieldDataForStore, setEmptyFieldDataForStore] = useState({});
@@ -85,12 +58,12 @@ const CustomerListing = ({ currentStore }) => {
       .catch((err) => {
         console.error(err);
       });
-  });
+  }, [currentStore]);
 
   useEffect(() => {
     if (!pageCount) return;
     if (!currentPage && currentPage !== 0 && pageCount) setCurrentPage(1);
-  }, [pageCount, currentPage]);
+  }, [pageCount, currentPage, recheckSwitch]);
 
   useEffect(() => {
     genEmptyFieldData(currentStore)
@@ -105,18 +78,20 @@ const CustomerListing = ({ currentStore }) => {
   useEffect(() => {
     getCustomers(currentStore, { limit: 10, skip: (currentPage - 1) * 10 })
       .then((data) => {
-        console.log(data);
         setCustomerList(data.customers);
       })
       .catch((err) => {
         console.error(err);
       });
-  }, [currentPage, currentStore]);
+  }, [currentPage, currentStore, recheckSwitch]);
+
+  const onPageChange = (_event, number) => {
+    setCurrentPage(number);
+  };
 
   return (
-    <div className={classes.root}>
-      {customerList.map((current) => {
-        console.log(current);
+    <Grid container direction='column'>
+      {customerList.map((current, index) => {
         const onClose = dialogClose;
         const onConfirm = () => {
           deleteCustomer(currentStore, current.email)
@@ -132,20 +107,22 @@ const CustomerListing = ({ currentStore }) => {
             });
         };
         return (
-          <Accordion key={current.email}>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls='panel1a-content'
-              id='panel1a-header'
-            >
-              {/* <Typography className={classes.heading}>
-                {current.email} - {current.firstName} {current.lastName}
-              </Typography> */}
+          <Grid
+            key={current.email}
+            item
+            style={{
+              marginBottom: '0.1em',
+              marginTop: index === 0 ? '0.1em' : null,
+            }}
+          >
+            <Card style={{ padding: '1em' }}>
               <Grid container>
-                <Grid item xs={12} sm={10}>
-                  {current.email} - {current.firstName} {current.lastName}
-                </Grid>
-                <Grid item xs={12} sm={2}>
+                <Grid
+                  item
+                  xs={12}
+                  container
+                  style={{ justifyContent: 'flex-end' }}
+                >
                   <Button
                     variant='contained'
                     color='secondary'
@@ -163,46 +140,50 @@ const CustomerListing = ({ currentStore }) => {
                     Delete
                   </Button>
                 </Grid>
-              </Grid>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Grid container>
-                <Grid item sm={2}>
-                  Phone: +{current.phone}
+                <Grid item xs={12}>
+                  First Name: {current.firstName}
                 </Grid>
-                <Grid item sm={2}>
-                  Birthday: {current.birthday}
+                <Grid item xs={12}>
+                  Last Name: {current.lastName}
                 </Grid>
-                <Grid item container sm={12}>
+                <Grid item xs={12}>
+                  Email: {current.email}
+                </Grid>
+                <Grid item xs={12}>
+                  Address: {current.address}
+                </Grid>
+                <Grid item xs={12}>
+                  Phone: {current.phone}
+                </Grid>
+                <Grid item xs={12}>
+                  Store: {current.store}
+                </Grid>
+                <Grid item container xs={12}>
                   {typeof current.additionalFields === 'object' &&
                     Object.keys({
                       ...emptyFieldDataForStore,
                       ...current.additionalFields,
-                    }).map((key) => (
-                      <Grid item sm={2}>
-                        {key}: current.additionalFields[key]
+                    }).map((fieldName) => (
+                      <Grid key={fieldName} item xs={12}>
+                        {fieldName}: {current.additionalFields[fieldName]}
                       </Grid>
                     ))}
                 </Grid>
               </Grid>
-              {/* <Typography>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Suspendisse malesuada lacus ex, sit amet blandit leo lobortis
-                eget.
-              </Typography> */}
-            </AccordionDetails>
-          </Accordion>
+            </Card>
+          </Grid>
         );
       })}
-      {!!pageCount && <BasicPagination pages={pageCount} />}
-    </div>
+      {!!pageCount && (
+        <BasicPagination
+          pages={pageCount}
+          page={currentPage}
+          onChange={onPageChange}
+        />
+      )}
+    </Grid>
   );
 };
-
-const labelWithRouteList = [
-  { label: 'List Customers', route: ROUTE_MINOR_CUSTOMER },
-  { label: 'List Fields', route: ROUTE_MINOR_FIELD },
-];
 
 const ListInfo = () => {
   const [currentStore, setCurrentStore] = useState(STORES_VALUES[0]);
@@ -210,13 +191,6 @@ const ListInfo = () => {
 
   return (
     <Grid container direction='column'>
-      <Grid item>
-        {/* <AddInfoTabs /> */}
-        <PaperLinkTabs
-          majorRoute={ROUTE_MAJOR_LIST_INFO}
-          labelWithMinorRouteList={labelWithRouteList}
-        />
-      </Grid>
       <Grid item>
         <Card className={classes.selectContainingPanel}>
           <DesiredSelect
@@ -228,23 +202,7 @@ const ListInfo = () => {
         </Card>
       </Grid>
       <Grid item>
-        <Switch>
-          <Redirect
-            exact
-            from={`${ROUTE_MAJOR_LIST_INFO}`}
-            to={`${ROUTE_LIST_CUSTOMERS}`}
-          />
-          <Route
-            path={ROUTE_LIST_CUSTOMERS}
-            component={() => <CustomerListing currentStore={currentStore} />}
-          />
-          <Route
-            path={ROUTE_LIST_FIELDS}
-            component={() => (
-              <div currentStore={currentStore}>Fields are us</div>
-            )}
-          />
-        </Switch>
+        <CustomerListing currentStore={currentStore} />
       </Grid>
     </Grid>
   );

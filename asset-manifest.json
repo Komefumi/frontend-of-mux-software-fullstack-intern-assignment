@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/frontend-of-mux-software-fullstack-intern-assignment/static/css/main.fa485cbc.chunk.css",
+    "main.js": "/frontend-of-mux-software-fullstack-intern-assignment/static/js/main.e077980e.chunk.js",
+    "main.js.map": "/frontend-of-mux-software-fullstack-intern-assignment/static/js/main.e077980e.chunk.js.map",
+    "runtime-main.js": "/frontend-of-mux-software-fullstack-intern-assignment/static/js/runtime-main.51ffde47.js",
+    "runtime-main.js.map": "/frontend-of-mux-software-fullstack-intern-assignment/static/js/runtime-main.51ffde47.js.map",
+    "static/js/2.fe7cfa29.chunk.js": "/frontend-of-mux-software-fullstack-intern-assignment/static/js/2.fe7cfa29.chunk.js",
+    "static/js/2.fe7cfa29.chunk.js.map": "/frontend-of-mux-software-fullstack-intern-assignment/static/js/2.fe7cfa29.chunk.js.map",
+    "static/js/3.a5f56c2d.chunk.js": "/frontend-of-mux-software-fullstack-intern-assignment/static/js/3.a5f56c2d.chunk.js",
+    "static/js/3.a5f56c2d.chunk.js.map": "/frontend-of-mux-software-fullstack-intern-assignment/static/js/3.a5f56c2d.chunk.js.map",
+    "index.html": "/frontend-of-mux-software-fullstack-intern-assignment/index.html",
+    "static/css/main.fa485cbc.chunk.css.map": "/frontend-of-mux-software-fullstack-intern-assignment/static/css/main.fa485cbc.chunk.css.map",
+    "static/js/2.fe7cfa29.chunk.js.LICENSE.txt": "/frontend-of-mux-software-fullstack-intern-assignment/static/js/2.fe7cfa29.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.51ffde47.js",
+    "static/js/2.fe7cfa29.chunk.js",
+    "static/css/main.fa485cbc.chunk.css",
+    "static/js/main.e077980e.chunk.js"
+  ]
+}

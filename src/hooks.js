@@ -1,12 +1,5 @@
-import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { nanoid } from 'nanoid';
-import MuiPhoneInput from 'material-ui-phone-number';
 import {
-  DATE_T,
-  EMAIL_T,
-  NUMBER_T,
-  STRING_T,
   SET_FLASH_MESSAGE,
   SET_DIALOG,
   ERROR,

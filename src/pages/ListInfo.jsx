@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Grid, Card, Button } from '@material-ui/core';
 import { Pagination } from '@material-ui/lab';
 import { Delete as DeleteIcon } from '@material-ui/icons';
+import { isDate } from 'validator';
 
 import DesiredSelect from '../components/DesiredSelect';
 
@@ -156,6 +157,9 @@ const CustomerListing = ({ currentStore }) => {
                   Phone: {current.phone}
                 </Grid>
                 <Grid item xs={12}>
+                  Birthday: {new Date(current.birthday).toDateString()}
+                </Grid>
+                <Grid item xs={12}>
                   Store: {current.store}
                 </Grid>
                 <Grid item container xs={12}>
@@ -163,11 +167,18 @@ const CustomerListing = ({ currentStore }) => {
                     Object.keys({
                       ...emptyFieldDataForStore,
                       ...current.additionalFields,
-                    }).map((fieldName) => (
-                      <Grid key={fieldName} item xs={12}>
-                        {fieldName}: {current.additionalFields[fieldName]}
-                      </Grid>
-                    ))}
+                    }).map((fieldName) => {
+                      let value = current.additionalFields[fieldName];
+                      const dateVal = new Date(value);
+                      const validDate = isDate(dateVal);
+                      if (validDate) value = dateVal.toDateString();
+
+                      return (
+                        <Grid key={fieldName} item xs={12}>
+                          {fieldName}: {value}
+                        </Grid>
+                      );
+                    })}
                 </Grid>
               </Grid>
             </Card>

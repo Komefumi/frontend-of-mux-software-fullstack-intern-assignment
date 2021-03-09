@@ -73,28 +73,54 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const AdditionalFields = ({ currentForm, setField }) => {
-  console.log(currentForm);
+const AdditionalFields = ({
+  propertyMap,
+  setDataForParent,
+  dataRetrievalSignal,
+}) => {
+  const [formState, setFormState] = useState({});
+
+  useEffect(() => {
+    if (propertyMap && Object.keys(propertyMap).length > 0) {
+      const initialFormState = Object.keys(propertyMap).reduce(
+        (accum, currKey) => ({ ...accum, [currKey]: '' }),
+        {}
+      );
+      setFormState({ ...initialFormState });
+    }
+  }, [propertyMap]);
+
+  useEffect(() => {
+    if (!dataRetrievalSignal) return;
+    setDataForParent(formState);
+  }, [dataRetrievalSignal, formState, setDataForParent]);
   return (
     <>
-      {currentForm.map((current) => {
-        const { fieldType, fieldName, value, id } = current;
-        console.log({ fieldType });
+      {Object.keys(propertyMap).map((fieldName, index) => {
+        const value = formState[fieldName];
+        const fieldType = propertyMap[fieldName];
         const onChange = (e) => {
-          setField(id, e.target.value);
+          setFormState({ ...formState, [fieldName]: e.target.value });
+          setDataForParent(formState);
         };
         let Inner = null;
         switch (fieldType) {
           case STRING_T:
             Inner = () => (
-              <TextField label={fieldName} value={value} onChange={onChange} />
+              <TextField
+                label={fieldName}
+                key={fieldName}
+                // value={value}
+                onChange={onChange}
+              />
             );
             break;
           case NUMBER_T:
             Inner = () => (
               <TextField
                 label={fieldName}
-                value={value}
+                key={fieldName}
+                // value={value}
                 onChange={onChange}
                 type='number'
               />
@@ -104,7 +130,8 @@ const AdditionalFields = ({ currentForm, setField }) => {
             Inner = () => (
               <TextField
                 label={fieldName}
-                value={value}
+                key={fieldName}
+                // value={value}
                 onChange={onChange}
                 type='email'
               />
@@ -118,9 +145,10 @@ const AdditionalFields = ({ currentForm, setField }) => {
                   id='date-picker-dialog'
                   label='Date of Birth'
                   format='MM/dd/yyyy'
-                  value={value}
+                  key={fieldName}
+                  // value={value}
                   onChange={(date) => {
-                    setField(id, date);
+                    setFormState({ ...formState, [fieldName]: date });
                   }}
                   KeyboardButtonProps={{
                     'aria-label': 'change date',
@@ -133,11 +161,7 @@ const AdditionalFields = ({ currentForm, setField }) => {
             Inner = () => null;
         }
 
-        return (
-          <Grid item sm={12} key={id}>
-            <Inner />
-          </Grid>
-        );
+        return Inner();
       })}
     </>
   );
@@ -149,6 +173,7 @@ const AddCustomer = () => {
   // const [currentForm, setField] = useFormState();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
   const [address, setAddress] = useState('');
   const [phone, setPhone] = useState();
   const [dob, setDob] = useState(new Date());
@@ -157,19 +182,24 @@ const AddCustomer = () => {
     []
   );
   const [formValid, setFormValid] = useState(false);
-  console.log({ currentForm });
+  const [propertyMapForAdditional, setPropertyMapForAdditional] = useState(
+    null
+  );
+  const [additionalDataRetSignal, setAdditionalDataRetSignal] = useState(false);
+  const [additionalData, setAdditionalData] = useState(null);
 
   useEffect(() => {
-    console.log({ store, index: STORES_VALUES.indexOf(store.toLowerCase()) });
     if (STORES_VALUES.indexOf(store.toLowerCase()) === -1) return;
     listFields(store)
       .then((data) => {
         const { fields } = data;
-        const fieldsWithVal = fields.map((current) => ({
-          ...current,
-          val: null,
-        }));
-        setCurrentFormSeed(fieldsWithVal);
+        // const fieldsWithVal = fields.map((current) => ({
+        //   ...current,
+        //   value: '',
+        //   id: nanoid(),
+        // }));
+
+        setPropertyMapForAdditional(fields);
       })
       .catch((err) => {
         console.error(err);
@@ -184,34 +214,47 @@ const AddCustomer = () => {
       anyStringInvalid ||
       !checkIfDate(dob) ||
       !checkIfPhone(phone) ||
+      !checkIfEmail(email) ||
       STORES_VALUES.indexOf(store) === -1
     ) {
       setFormValid(false);
       return;
     }
 
+    setAdditionalDataRetSignal();
     setFormValid(true);
-  }, [firstName, lastName, address, phone, dob, store]);
+  }, [
+    firstName,
+    lastName,
+    email,
+    address,
+    phone,
+    dob,
+    store,
+    setAdditionalDataRetSignal,
+  ]);
+
+  useEffect(() => {
+    if (additionalDataRetSignal) setAdditionalDataRetSignal(false);
+  }, [additionalDataRetSignal]);
 
   const handleDobChange = (date) => {
     setDob(date);
   };
 
   const submitForm = () => {
-    const payload = {
+    let payload = {
       firstName,
       lastName,
+      email,
       address,
       phone,
       birthday: dob,
       additionalFields: {},
     };
-    const validItems = currentForm.filter((currentItem) => {
-      return validatorForTypes[currentItem.fieldType](currentItem.value);
-    });
-    validItems.forEach((current) => {
-      payload.additionalFields[current.fieldName] = current.value;
-    });
+    payload = { ...payload, additionalFields: additionalData };
+    console.log({ payload, store });
+
     createCustomer(store, payload)
       .then(() => {
         dispatch({
@@ -253,6 +296,14 @@ const AddCustomer = () => {
               label='Last Name'
               value={lastName}
               onChange={handlerFromSetter(setLastName)}
+            />
+          </Grid>
+          <Grid item sm={12}>
+            <TextField
+              id='email'
+              label='Email'
+              value={email}
+              onChange={handlerFromSetter(setEmail)}
             />
           </Grid>
           <Grid item sm={12}>
@@ -303,7 +354,13 @@ const AddCustomer = () => {
               Additional Fields
             </Typography>
           </Grid>
-          <AdditionalFields currentForm={currentForm} setField={setField} />
+          {propertyMapForAdditional && (
+            <AdditionalFields
+              propertyMap={propertyMapForAdditional}
+              setDataForParent={setAdditionalData}
+              dataRetrievalSignal={additionalDataRetSignal}
+            />
+          )}
           <Grid item sm={12}>
             <Button
               onClick={submitForm}

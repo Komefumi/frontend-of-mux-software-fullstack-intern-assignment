@@ -17,8 +17,9 @@ const getCustomers = (storeName) => {
 };
 
 const createCustomer = (storeName, customerData) => {
+  console.log({ storeName });
   return axiosInstance
-    .post('/customers', { params: { store: storeName }, data: customerData })
+    .post('/customers', customerData, { params: { store: storeName } })
     .then(responseToData)
     .then((dataFormal) => dataFormal.data);
 };

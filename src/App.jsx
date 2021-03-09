@@ -85,7 +85,7 @@ function App() {
         </Grid>
         {flashMessage && (
           <Snackbar
-            open={flashMessage && flashMessage.length}
+            open={flashMessage && flashMessage.length ? true : false}
             autoHideDuration={6000}
             onClose={snackClose}
           >
